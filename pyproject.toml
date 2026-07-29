@@ -1,0 +1,33 @@
+[project]
+name = "clinic-mcp-server"
+version = "0.1.0"
+description = "MCP Server: Company Data as Claude Tools — grounded clinic docs + gated appointment writes"
+readme = "README.md"
+requires-python = ">=3.12"
+dependencies = [
+    "mcp>=2.0.0",
+    "pgvector>=0.5.0",
+    "psycopg[binary]>=3.3.4",
+    "pydantic>=2.0.0",
+    "python-dotenv>=1.2.2",
+    "sentence-transformers>=5.6.0",
+]
+
+[project.optional-dependencies]
+dev = [
+    "anyio>=4.0",
+    "pytest>=8.0",
+]
+
+[project.scripts]
+clinic-mcp = "clinic_mcp.server:main"
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.hatch.build.targets.wheel]
+packages = ["clinic_mcp"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]

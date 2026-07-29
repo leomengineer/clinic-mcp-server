@@ -1,0 +1,15 @@
+{
+  "mcpServers": {
+    "clinic": {
+      "command": "/Users/leovet/.cargo/bin/uv",
+      "args": [
+        "run",
+        "--directory",
+        "/Users/leovet/freelance/clinic-mcp-server",
+        "python",
+        "-m",
+        "clinic_mcp"
+      ]
+    }
+  }
+}
