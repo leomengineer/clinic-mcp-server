@@ -1,7 +1,7 @@
 """Clinic MCP Server — four tools over BrightSmile docs + structured records.
 
-Transport: stdio (Claude Desktop). Read tools are grounded; the write tool
-only creates a pending approval request.
+Built on FastMCP (stdio for Claude Desktop). Read tools are grounded; the write
+tool only creates a pending approval request.
 """
 
 from __future__ import annotations
@@ -10,7 +10,7 @@ from datetime import date
 from datetime import datetime as DateTime
 from typing import Annotated
 
-from mcp.server import MCPServer
+from fastmcp import FastMCP
 from mcp.types import ToolAnnotations
 from pydantic import Field
 
@@ -27,7 +27,7 @@ from clinic_mcp.schemas import (
     SearchClinicDocsResult,
 )
 
-mcp = MCPServer(
+mcp = FastMCP(
     "clinic-mcp-server",
     instructions=(
         "BrightSmile Dental Clinic tools. "
@@ -41,8 +41,11 @@ mcp = MCPServer(
 
 @mcp.tool(
     name="search_clinic_docs",
-    title="Search clinic documents",
-    annotations=ToolAnnotations(read_only_hint=True, open_world_hint=False, destructive_hint=False),
+    annotations=ToolAnnotations(
+        readOnlyHint=True,
+        openWorldHint=False,
+        destructiveHint=False,
+    ),
 )
 def search_clinic_docs_tool(
     query: Annotated[
@@ -76,8 +79,11 @@ def search_clinic_docs_tool(
 
 @mcp.tool(
     name="get_patient_record",
-    title="Get patient record",
-    annotations=ToolAnnotations(read_only_hint=True, open_world_hint=False, destructive_hint=False),
+    annotations=ToolAnnotations(
+        readOnlyHint=True,
+        openWorldHint=False,
+        destructiveHint=False,
+    ),
 )
 def get_patient_record_tool(
     patient_id: Annotated[
@@ -98,8 +104,11 @@ def get_patient_record_tool(
 
 @mcp.tool(
     name="list_appointments",
-    title="List appointments",
-    annotations=ToolAnnotations(read_only_hint=True, open_world_hint=False, destructive_hint=False),
+    annotations=ToolAnnotations(
+        readOnlyHint=True,
+        openWorldHint=False,
+        destructiveHint=False,
+    ),
 )
 def list_appointments_tool(
     date_from: Annotated[
@@ -122,12 +131,11 @@ def list_appointments_tool(
 
 @mcp.tool(
     name="create_appointment",
-    title="Create appointment (pending approval)",
     annotations=ToolAnnotations(
-        read_only_hint=False,
-        destructive_hint=False,
-        idempotent_hint=False,
-        open_world_hint=False,
+        readOnlyHint=False,
+        destructiveHint=False,
+        idempotentHint=False,
+        openWorldHint=False,
     ),
 )
 def create_appointment_tool(
@@ -169,7 +177,7 @@ def create_appointment_tool(
 
 def main() -> None:
     """stdio entry point for Claude Desktop / any MCP client."""
-    mcp.run(transport="stdio")
+    mcp.run()
 
 
 if __name__ == "__main__":

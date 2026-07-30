@@ -7,7 +7,7 @@ from unittest.mock import patch
 from zoneinfo import ZoneInfo
 
 import pytest
-from mcp import Client
+from fastmcp import Client
 
 from clinic_mcp.errors import CODE_DB_UNAVAILABLE, CODE_PATIENT_NOT_FOUND, ClinicToolError
 from clinic_mcp.schemas import (
@@ -20,19 +20,14 @@ from clinic_mcp.schemas import (
 from clinic_mcp.server import mcp
 
 
-def _tools(result):
-    """MCP Client.list_tools() returns ListToolsResult with a .tools list."""
-    return result.tools if hasattr(result, "tools") else list(result)
-
-
 def _schema(tool):
-    return getattr(tool, "input_schema", None) or getattr(tool, "inputSchema", {})
+    return getattr(tool, "inputSchema", None) or getattr(tool, "input_schema", {})
 
 
 @pytest.mark.anyio
 async def test_lists_exactly_four_tools():
     async with Client(mcp) as client:
-        tools = _tools(await client.list_tools())
+        tools = await client.list_tools()
     names = sorted(t.name for t in tools)
     assert names == [
         "create_appointment",
@@ -45,7 +40,7 @@ async def test_lists_exactly_four_tools():
 @pytest.mark.anyio
 async def test_tool_descriptions_are_rich():
     async with Client(mcp) as client:
-        tools = {t.name: t for t in _tools(await client.list_tools())}
+        tools = {t.name: t for t in await client.list_tools()}
 
     search = tools["search_clinic_docs"]
     assert search.description
@@ -55,14 +50,14 @@ async def test_tool_descriptions_are_rich():
 
     create = tools["create_appointment"]
     assert create.annotations is not None
-    assert create.annotations.read_only_hint is False
-    assert tools["search_clinic_docs"].annotations.read_only_hint is True
+    assert create.annotations.readOnlyHint is False
+    assert tools["search_clinic_docs"].annotations.readOnlyHint is True
 
 
 @pytest.mark.anyio
 async def test_search_tool_input_schema_has_query_and_top_k():
     async with Client(mcp) as client:
-        tools = {t.name: t for t in _tools(await client.list_tools())}
+        tools = {t.name: t for t in await client.list_tools()}
     schema = _schema(tools["search_clinic_docs"])
     props = schema.get("properties", {})
     assert "query" in props
@@ -73,7 +68,7 @@ async def test_search_tool_input_schema_has_query_and_top_k():
 @pytest.mark.anyio
 async def test_create_tool_input_schema_uses_datetime_arg():
     async with Client(mcp) as client:
-        tools = {t.name: t for t in _tools(await client.list_tools())}
+        tools = {t.name: t for t in await client.list_tools()}
     props = _schema(tools["create_appointment"]).get("properties", {})
     assert "datetime" in props
     assert "patient_id" in props
@@ -86,6 +81,7 @@ async def test_malformed_top_k_becomes_tool_error():
         result = await client.call_tool(
             "search_clinic_docs",
             {"query": "insurance", "top_k": 999},
+            raise_on_error=False,
         )
     assert result.is_error is True
 
@@ -122,6 +118,7 @@ async def test_patient_not_found_is_tool_error():
             result = await client.call_tool(
                 "get_patient_record",
                 {"patient_id": "does-not-exist"},
+                raise_on_error=False,
             )
     assert result.is_error is True
     text = " ".join(c.text for c in result.content if hasattr(c, "text"))
@@ -138,6 +135,7 @@ async def test_db_unavailable_is_tool_error_not_empty_success():
             result = await client.call_tool(
                 "list_appointments",
                 {"date_from": "2026-08-01", "date_to": "2026-08-31"},
+                raise_on_error=False,
             )
     assert result.is_error is True
     text = " ".join(c.text for c in result.content if hasattr(c, "text"))

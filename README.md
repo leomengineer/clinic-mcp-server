@@ -23,6 +23,8 @@ Claude Desktop (stdio MCP)
 
 Shares `DATABASE_URL` with docs-rag-chatbot (same Postgres). Retrieval code is local; the RAG `chunks` table is reused as-is. Clinic tables (`patients`, `appointments`, `appointment_requests`) are additive.
 
+Built with [FastMCP](https://gofastmcp.com/getting-started/welcome) — the MCP server framework (stdio transport, Pydantic tool schemas, structured outputs).
+
 ## Prerequisites
 
 1. Postgres/pgvector running for [docs-rag-chatbot](../docs-rag-chatbot) with docs ingested (`make up && make ingest` there).
@@ -107,7 +109,8 @@ make sync     # uv sync --extra dev
 make setup    # schema + seed
 make schema   # clinic tables only
 make seed     # demo patients / appointments
-make serve    # stdio MCP server
+make serve    # stdio MCP server (FastMCP)
+make dev      # FastMCP inspector (optional)
 make test     # pytest
 ```
 
