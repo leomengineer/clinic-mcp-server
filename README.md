@@ -125,9 +125,3 @@ make test
 ```
 
 Covers tool discovery/schemas, Pydantic validation, retrieval gate + citations, structured errors, patient/appointment lookups, and the invariant that write calls create pending requests only.
-
-## Portfolio positioning
-
-**Title:** MCP Server: Company Data as Claude Tools.
-
-**Pattern to name in the description:** read tools grounded with citations; write tools gated behind approval — the same human-in-the-loop principle as the RAG refuse-to-answer gate, doc-extractor review queue, and lead-qualifier draft-for-approval flow, now at the protocol layer.
